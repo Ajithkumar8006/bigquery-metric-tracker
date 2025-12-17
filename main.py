@@ -6,7 +6,7 @@ app = Flask(__name__)
 @app.route("/")
 def run_queries_and_publish_metrics():
     # Google Cloud Project Name
-    project_name = "ml-fpt-cdh-pat-app-d-d87d"
+    project_name = "ajith-8006"
 
     # Load the list of queries and metrics from queries.yaml
     queries = metric_runner.load_queries("queries.yaml")
