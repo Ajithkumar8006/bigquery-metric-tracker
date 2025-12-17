@@ -3,7 +3,6 @@ metrics:
     metric_type: custom.googleapis.com/bq_404_errors
     query: |
         SELECT
-          CURRENT_TIMESTAMP() AS metric_time,
           COUNT(*) AS error_count
         FROM `ajith-8006.error_simulator.error_logs`
         WHERE event_time >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 10 MINUTE)
@@ -13,7 +12,6 @@ metrics:
     metric_type: custom.googleapis.com/bq_403_errors
     query: |
         SELECT
-          CURRENT_TIMESTAMP() AS metric_time,
           COUNT(*) AS error_count
         FROM `ajith-8006.error_simulator.error_logs`
         WHERE event_time >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 10 MINUTE)
