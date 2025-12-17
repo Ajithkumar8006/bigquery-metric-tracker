@@ -5,11 +5,13 @@ from datetime import datetime, timezone
 import yaml
 
 def load_queries(file_path="queries.yaml"):
+    """Load metrics queries from YAML."""
     with open(file_path, "r") as file:
         data = yaml.safe_load(file)
     return data["metrics"]
 
 def create_metric_descriptor(project_id, metric_type):
+    """Create custom metric descriptor in Cloud Monitoring if not exists."""
     client = monitoring_v3.MetricServiceClient()
     project_name = f"projects/{project_id}"
 
@@ -28,21 +30,25 @@ def create_metric_descriptor(project_id, metric_type):
         )
         print(f"Metric descriptor created: {metric_type}")
     except Exception:
-        # Already exists
+        # Metric already exists
         pass
 
 def run_query_and_publish_metric(query_name, metric_type, query, project_id):
+    """Run BigQuery query and publish the result as custom metric."""
     bq_client = bigquery.Client(project=project_id)
     monitoring_client = monitoring_v3.MetricServiceClient()
 
     try:
+        # Ensure metric descriptor exists
         create_metric_descriptor(project_id, metric_type)
 
+        # Execute the query
         rows = list(bq_client.query(query).result())
-        value = float(rows[0][0]) if rows else 0.0
+        value = float(rows[0]["value"]) if rows else 0.0
 
         now = datetime.now(timezone.utc)
 
+        # Prepare TimeSeries for Cloud Monitoring
         series = monitoring_v3.TimeSeries()
         series.metric.type = metric_type
         series.resource.type = "global"
@@ -53,6 +59,7 @@ def run_query_and_publish_metric(query_name, metric_type, query, project_id):
         )
         series.points = [point]
 
+        # Publish metric
         monitoring_client.create_time_series(
             name=f"projects/{project_id}",
             time_series=[series]
@@ -71,5 +78,7 @@ def run_query_and_publish_metric(query_name, metric_type, query, project_id):
             "metric": query_name,
             "metric_type": metric_type,
             "published": False,
-            "error": str(e)
+            "value": 0,
+            "error": str(e),
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
