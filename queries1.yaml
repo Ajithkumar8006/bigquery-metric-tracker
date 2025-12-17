@@ -1,0 +1,16 @@
+metrics:
+  - name: bigquery_404_errors
+    metric_type: custom.googleapis.com/bq_404_errors
+    query: |
+      SELECT COUNT(*) AS value
+      FROM `ml-fpt-cdh-amon-d-c76c.tealium_events.patient_platform_errors_prod`
+      WHERE http_status = '404'
+      AND TIMESTAMP(timestamp_utc) >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 15 MINUTE)
+      
+  - name: bigquery_500_errors
+    metric_type: custom.googleapis.com/bq_500_errors
+    query: |
+      SELECT COUNT(*) AS value
+      FROM `ml-fpt-cdh-amon-d-c76c.tealium_events.patient_platform_errors_prod`
+      WHERE http_status = '500'
+      AND TIMESTAMP(timestamp_utc) >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 15 MINUTE)
